@@ -1,0 +1,8 @@
+node_modules
+.temp
+.cache
+
+# production  打包文件
+/build
+/.temp
+/yarn.lock

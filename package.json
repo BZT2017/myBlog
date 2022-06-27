@@ -1,0 +1,24 @@
+{
+  "name": "myblog",
+  "version": "1.0.0",
+  "description": "zzZB",
+  "author": "Tiger",
+  "license": "MIT",
+  "devDependencies": {
+    "vuepress": "2.0.0-beta.46",
+    "vuepress-theme-gungnir": "^2.0.0-alpha.24"
+  },
+  "dependencies": {},
+  "scripts": {
+    "dev": "vuepress dev docs",
+    "build": "vuepress build docs --clean-cache",
+    "deploy": "bash deploy.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitee.com/bzt2017/myblog-resource.git"
+  },
+  "bugs": {
+    "url": "https://gitee.com/bzt2017/myblog-resource.git/issues"
+  }
+}
