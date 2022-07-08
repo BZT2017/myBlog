@@ -47,7 +47,7 @@ module.exports = {
   entey: '.src/index.js',
   // 输出配置
   output:{
-    filename: 'bundle.js',
+    filename: 'script/bundle.js',
     // 输出文件路径
     path: path.resolve(__dirname,'./dist'),
     // 清理dist文件
@@ -57,12 +57,12 @@ module.exports = {
   mode: {
     ...
   }
-// 非必须定义
-  // 开发环境
+  // 非必须定义
+  // 开发环境调试工具，用来使本地IDE内的代码与打包后浏览器内的源代码保持一致
   devtool: 'inline-source-map',
   // 插件配置
   plugins:[
-
+    ...
   ]
 }
 
@@ -75,12 +75,19 @@ module.exports = {
 
 - Webpack
   内置插件
+  :::warning
+  **TerserPlugin** 是webpack内置的插件，用来清除debug与console，并实现js代码压缩
+  
+  但是配置CSS压缩插件 **CssMinimizerPlugin** 后会导致该插件失效，需要手动安装 terser-webpack-plugin ,引入后配置到optimization
+  :::
 
 - Webpack Contrib
   第三方插件
 
+
+
 ## webpack-dev-server
-用来实行代码热更行的工具
+用来实行代码热更新的工具
 
 :::warning
 不会输出任何物理文件，只是把webpack输出的dist文件放入了内存
@@ -100,7 +107,7 @@ module.exports = {
   ```
 
 ## 资源模块
-项目中使用**esmodule**引入
+项目中使用**esmodule**引入方法（import xxx from './xxxx.js'）
 
 配置资源的输出路径
 ```javascript
@@ -406,7 +413,7 @@ use为数组时有加载顺序，顺序为**从后往前**,即先加载less-load
 - 使用
   1. 安装 babel-loader、@babel/core、@babel/preset-env
   2. 配置loader
-    ```javascript {7-17}
+    ```javascript {7-22}
     // webpack.config.js文件
     module.exports = {
       ...
@@ -437,12 +444,11 @@ use为数组时有加载顺序，顺序为**从后往前**,即先加载less-load
 
 ## 代码分离
 
-优点：可以用于获取更小的bundle（打包分离出来的文件），以及控制资源加载的优先级
+优点：可以用于获取更小的 **bundle**（打包分离出来的文件），以及控制资源加载的优先级
 
-常用的代码分离方法有3种
-1. 入口起点：通过配置entry多个入口文件来进行代码分离
-2. 防止重复：
-3. 动态引入：
+代码引入有两种：
+1. 动态引入：import函数引入
+2. 静态引入：
 
 ### 入口起点
 配置entry
@@ -472,21 +478,318 @@ module.exports = {
 
 
 :::warning
-该方法会将多个入口文件所引用的通用代码库重复打包
+该方法会将多个入口文件所引用的通用代码库重复打包，须结合 **防止重复** 方案运用
 
-例如：index_1中引入了lodash，index_2中也引入lodash，webpack会将两者引入的lodash分别打包到相应的bundle内
+例如：index_1中引入了lodash，index_2中也引入lodash，webpack会将两者引入的lodash分别打包到相应的bundle内,而我们期望这个公用库只需要打包一次
 :::
 
 ### 防止重复
+通过定义 **dependOn（入口依赖）** 属性和 **shared** 属性，wepback可以将两者公共的库抽取出来，形成名为shared的 **chunk**（数据块）
+:::tip
+定义的shared最终会以script标签形式追加到body标签里
 
+注意点请看注释
 
+项目中可以使用插件帮助我们自动分离重复的库
+:::
+ ```javascript {5-14}
+// webpack.config.js文件
+module.exports = {
+  ...
+  entry：{
+    index_1: {
+      import: './xxxx/xxxx.js',
+      dependOn: 'shared'
+    },
+    index_2: {
+      import: './xxxx/xxxx.js',
+      dependOn: 'shared'
+    },
+    // 注意：最终打包出来的bundle名由key定义
+    shared: 'lodash'
+  },
+  output:{
+    // [name] 可以拿到entry里面的key的值，在此处为index_1和index_2
+    filename:'[name].bundle.js',
+    path: path.resolve(__dirname,'./dist'),
+    clean:true,
+    assetModuleFilename: 'imges/[contenthash][ext]'
+  }
+}
+```
+:::tip
+也可以使用wepback内置的 **split-chunks-Plugin** 插件抽离出重复的库
+
+抽离出的bundle文件名以 **vendors-node_modules_** 开头
+:::
+ ```javascript {10-12}
+// webpack.config.js文件
+module.exports = {
+  ...
+  entry：{
+    index_1: './xxxx/xxxx.js',
+    index_2: './xxxx/xxxx.js',
+  },
+  optimization: {
+    ...
+    splitChunks:{
+      chunks: 'all'
+    }
+  }
+}
+```
 
 ### 动态引入
 
+使用 **import** 函数实现, wepback会识别import异步引入的库，并将它打包为**vendors-node_modules_** 开头的bundle文件
 
+魔法注释：
+- 懒加载
 
+  懒加载用到的bundle**只有在用户使用的时候**才会向服务器发送请求，页面初始化时不会请求，这样可以节省带宽
 
+  ```javascript {2}
+  // 需要使用懒加载的文件
+  ...
+  // import内部的注释叫魔术注释，webpack会将该模块打包为名为math的bundle
+  util: ()=>{ return import(/* webpackChunkName: 'math' */'./<util>.js') }
+  ```
 
+- 预获取/预加载
 
+  使用魔法注释
+    - /* webpackPrefetch: true */：实行**预获取**模式，在首页内容加载完毕后加载
+      :::warning
+      预加载在初始化时请求一次，在使用时也会请求一次
+      
+      下载是发生在父级chunk加载完成之后
 
+      会在head标签内新增link标签
+      :::
+      ```html {3}
+      <head>
+        ...
+        <link rel="prefetch" as="script" href="http://xxxxx/xxx.bundle.js">
+      </head>
+      ```
 
+    - /* webpackPreload: true */：实行**预加载**模式，与懒加载行为一致
+      :::warning
+      异步chunk会和父级chunk**并行加载**,不当地使用wepbackPreload会损害性能
+
+      会在head标签内新增link标签
+      :::
+      ```html {3}
+      <head>
+        ...
+        <link rel="preload" as="script" href="http://xxxxx/xxx.bundle.js">
+      </head>
+      ```
+
+## 优化缓存
+### 解决chunk文件缓存问题
+因为每次打包**相同的bundle文件名会被浏览器缓存**，在文件被更改时不会获取最新内容，所以需要配置可替换模板字符串来解决此问题
+
+```javascript {7-8}
+// webpack.config.js文件
+module.exports = {
+  ...
+  // 输出配置
+  output:{
+    ...
+    // 设置可替换模板字符串[contenthash]，根据文件内容生成的hash值
+    filename: '[name].[contenthash].js',
+  },
+}
+
+```
+
+### 缓存第三方库
+由于第三方库很少被开发者修改，则可以利用浏览器缓存来减少请求
+
+```javascript {9-16}
+// webpack.config.js文件
+module.exports = {
+  ...
+  // 输出配置
+  optimization: {
+    ...
+    spiltChunks:{
+      // 设置缓存组
+      cacheGroups:{
+        vendor:{
+          // 一般第三方库安装在node_modules文件夹
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all'
+        }
+      }
+    }
+  },
+}
+
+```
+
+## 生产环境与开发环境配置
+webpack切换打包环境通过 **mode** 属性配置，有两个值
+
+- **production**：表示生产环境
+- **development**：表示开发环境
+
+```javascript {9-16}
+// webpack.config.js文件
+module.exports = {
+  ...
+  // 环境配置 production | development
+  mode: 'production',
+}
+
+```
+在实际的开发环境中，不可能手动修改mode的值来切换打包模式，于是需要将module.exports出去的对象转换成函数，通过 **env** 获取当前打包的环境
+
+```javascript
+// webpack.config.js文件
+...
+// 此处的env对应着npm执行命令 --env 后的值
+module.exports = (env)=> {
+  // 将配置对象return出去
+  return {
+    ...
+    // 
+    mode: env.production ? 'production' : 'development',
+  }
+}
+```
+
+在终端打包时携带 --env production
+```bash
+npx webpack --env production 
+```
+:::tip
+--env 后的值还支持键值对，例如 --env goal=local
+
+可以通过 env.goal 获取
+:::
+
+### 配置拆分
+通过改变env环境变量虽然可以实现打包类型的修改，但是无法针对环境做定制化配置，于是需要做环境配置拆分
+
+1. 在根目录新建config文件夹，并新建 **webpack.config.prod.js** 、**webpack.config.prod.js** 与 **webpack.config.common.js** 文件
+
+2. 编写相应的配置，如
+  - prod: 添加代码压缩、去除source-map、添加文件缓存、添加公共路径
+
+    ```javascript
+    // webpack.config.prod.js文件
+    ...
+    module.exports = {
+      output:{
+        // 添加文件缓存[contenthash]
+        filename: 'script/[name].[contenthash].js',
+        publicPath: 'http://localhost:8080/'
+      },
+      mode: 'production',
+      optimization:{
+        minimizer:[
+          new CssMinimizerPlugin(),
+          new TerserPlugin()
+        ]
+      },
+      // 提示用户包的体积过大,生产环境关闭提示
+      performance:{
+        hints: false
+      }
+    }
+    ```
+
+  - dev: 去除代码压缩、添加source-map、添加启动服务配置（devServer）、去除文件缓存（[contenthash]）、去除publicPath
+
+    ```javascript
+    // webpack.config.dev.js文件
+    ...
+    module.exports = {
+      ...
+      output:{
+        // 删除文件缓存[contenthash]
+        filename: 'script/[name].js',
+      },
+      mode: 'development',
+      // 添加source-map
+      devtool: 'inline-source-map',
+      // 添加启动服务配置
+      devServer:{
+        static: './dist'
+      }
+
+    }
+    ```
+
+  - common：公共的配置
+
+    ```javascript
+    // webpack.config.common.js文件
+    module.exports = {
+      entry:{
+        // all
+        ...
+      },
+      output:{
+        // 输出文件路径为../dist，因为现在的执行环境在 scr/config 文件内
+        path: path.resolve(__dirname,'../dist'),
+        clean: true,
+        assetModuleFilename: 'images/[contenthash][ext]',
+      },
+      plugins: [
+        // all
+        ...
+      ],
+      module: [
+        // all
+        ...
+      ],
+      spiltChunks: {
+        // all
+        ...
+      }
+    }
+    ```
+
+### 配置文件合并
+**webpack-merge** 插件可以帮助我们合并这三个配置文件
+1. 安装 **webpack-merge** 插件
+2. 在config文件夹下新建 **webpack.config.js** 用它来充当配置的入口文件
+3. 配置 webpack.config.js
+        
+    ```javascript
+    // webpack.config.js文件
+    const { merge } = require('webpack-merge')
+
+    const commonConfig  = require('./webpack.config.common')
+    const productionConfig  = require('./webpack.config.prod')
+    const developmentConfig  = require('./webpack.config.dev')
+    module.exports = (env)=>{
+      switch(true) {
+        case env.development:
+          return merge(commonConfig, developmentConfig)
+        
+        case env.production:
+          return merge(commonConfig, productionConfig)
+
+        defult:
+          return new Error('No matching configuration was found')
+      }
+    }
+    ```
+
+### npm脚本配置
+
+```json {5-6}
+// package.json文件
+{
+  "script": {
+    ...
+    "build:prod":"webpack -c ./config/webpack.config.js --env production",
+    "build:dev":"webpack -c ./config/webpack.config.js --env development",
+  }
+}
+```
