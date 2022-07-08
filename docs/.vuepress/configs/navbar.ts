@@ -22,7 +22,7 @@ export const zh: NavbarConfig = [
       },
       {
         text: "分享",
-        link: "/life/share.md",
+        link: "/life/share/mini-skate.md",
         icon: "gi-clover"
       },
     ]
@@ -57,10 +57,15 @@ export const zh: NavbarConfig = [
         link: "/team/codingStandard.md",  
         icon: "bi-code-slash",
       },
+      {
+        text: "持续集成与持续部署",
+        link: "/team/ci-cd/ci-cd.md",  
+        icon: "bi-code-slash",
+      },
     ]
   },
   {
-    text: "面试",
+    text: "知识点",
     icon: "bi-signpost-2",
     children: [
       {
@@ -72,6 +77,16 @@ export const zh: NavbarConfig = [
         text: "vue",
         link: "/interview/vue.md",
         icon: "vi-file-type-vue",
+      },
+      {
+        text: "typescript",
+        link: "/interview/typescript.md",
+        icon: "vi-file-type-typescript-official",
+      },
+      {
+        text: "webpack",
+        link: "/interview/webpack.md",
+        icon: "vi-file-type-webpack",
       },
     ]
   },

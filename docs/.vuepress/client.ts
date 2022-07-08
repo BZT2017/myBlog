@@ -28,6 +28,8 @@ import {
   SiLodash,
   LaToolboxSolid,
   ViFileTypeVue,
+  ViFileTypeTypescriptOfficial,
+  ViFileTypeWebpack
 } from "oh-vue-icons/icons";
 
 addIcons(
@@ -58,6 +60,8 @@ addIcons(
   SiLodash,
   LaToolboxSolid,
   ViFileTypeVue,
+  ViFileTypeTypescriptOfficial,
+  ViFileTypeWebpack
 );
 
 export default defineClientConfig({});

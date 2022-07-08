@@ -34,7 +34,7 @@ export const zh: SidebarConfig = {
       ]
     },
   ],
-  "/interview/": [
+  "/interview/base": [
     {
       text: "前端基础",
       children: [
@@ -43,10 +43,44 @@ export const zh: SidebarConfig = {
         "/interview/base/高级.md",
       ]
     },
+  ],
+  "/interview/vue": [
     {
       text: "vue",
       children: [
         "/interview/vue.md",
+      ]
+    },
+  ],
+  "/interview/webpack": [
+    {
+      text: "webpack",
+      children: [
+        "/interview/webpack.md",
+      ]
+    },
+  ],
+  "/interview/typescript": [
+    {
+      text: "typescript",
+      children: [
+        "/interview/typescript.md",
+      ]
+    },
+  ],
+  "/team/": [
+    {
+      text: "持续集成与持续部署",
+      children: [
+        "/team/ci-cd/ci-cd.md",
+        "/team/ci-cd/git-flow.md",
+        "/team/ci-cd/jenkins.md",
+      ]
+    },
+    {
+      text: "编码规范",
+      children: [
+        "/team/codingStandard.md",
       ]
     },
   ],
