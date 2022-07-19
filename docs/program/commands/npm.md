@@ -19,4 +19,3 @@ npm install npm@8.12.1
 npm config set registry https://registry.npmmirror.com
 
 ## 升级最新npm版本
-npm install -g npm-windows-upgrade
