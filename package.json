@@ -10,7 +10,7 @@
   },
   "dependencies": {},
   "scripts": {
-    "dev": "vuepress dev docs --open",
+    "dev": "vuepress dev docs",
     "build": "vuepress build docs --clean-cache",
     "deploy": "bash deploy.sh"
   },

@@ -3,11 +3,13 @@ import type { SidebarConfig } from "vuepress-theme-gungnir";
 export const zh: SidebarConfig = {
   "/life/": [
     {
-      text: "life",
+      text: "分享",
       children: [
-        "/life/happyTime.md",
-        "/life/share.md",
-        "/life/emo.md",
+        "/life/share/mini-skate.md",
+        "/life/share/picgo.md",
+        "/life/share/vuePress.md",
+        "/life/share/gitMultipleAccounts.md",
+        "/life/share/chrome-plugin.md",
       ]
     },
   ],

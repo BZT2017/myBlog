@@ -99,6 +99,11 @@ export const zh: NavbarConfig = [
         link: "https://www.lodashjs.com/",
         icon: "si-lodash"
       },
+      {
+        text: "DNS解析",
+        link: "https://www.ipaddress.com/",
+        icon: ""
+      },
     ]
   }
 ];

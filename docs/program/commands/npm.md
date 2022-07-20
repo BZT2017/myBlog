@@ -19,3 +19,8 @@ npm install npm@8.12.1
 npm config set registry https://registry.npmmirror.com
 
 ## 升级最新npm版本
+
+
+## 清除缓存
+
+npm cache clear --force

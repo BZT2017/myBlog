@@ -21,11 +21,14 @@ nvm是nodejs的版本管理工具，解决开发人员需要频繁切换node版�
 ```
 原因：由于node版本（版本过高）与npm版本不匹配导致
 
-安装npm-windows-upgrade插件
+<!-- 安装npm-windows-upgrade插件
 
 npm install -g npm-windows-upgrade
 
-终端中执行npm-windows-upgrade 命令，然后指定npm的版本
+终端中执行npm-windows-upgrade 命令，然后指定npm的版本 -->
+打开nodejs安装位置的文件夹。并打开两个文件 npm.cmd 和 npm
+
+找到那2个文件里面的 prefix -g 替换为 prefix --location=global
 
 2. vscode终端内切换显示乱码
 
