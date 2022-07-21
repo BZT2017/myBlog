@@ -4,7 +4,7 @@ date: 2022-07-19
 ---
 
 ## 场景
-在公司可能会遇到多个git账号同时使用的问题，可能公司用gitlab账号提交公司代码，自己又要使用github或者其他账号提交自己的一些代码，这样就需要对git进行多账号配置了
+在公司可能会遇到多个git账号同时使用的问题，可能公司用gitlab账号提交公司代码，自己又要使用gitee或者其他账号提交自己的一些代码，这样就需要对git进行多账号配置了
 
 ## 解决方案
 通过配置多个ssh对不同类型的账号进行管理
@@ -30,9 +30,34 @@ ssh-keygen -t rsa -C "你的邮箱地址"
 
 4. 在相应的网站上设置你的公钥并保存
 
-5. 拉取项目代码并在目录中打开终端
+5. 回到.ssh文件夹，新增config(无后缀)文件并配置两个账号
 
-6. 在相应的项目中配置你的local环境账号名与e-mail
+```
+# gitlab
+Host gitlab.com
+HostName gitlab.com
+User youName
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/id_rsa_gitlab
+
+# gitee
+Host gitee.com
+HostName gitee.com
+User Tiger
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/id_rsa_gitee
+```
+
+6. 执行下面命令,关联config文件并测试是否设置成功
+```ssh
+ssh -T git@gitlab.com
+ssh -T git@github.com
+```
+
+
+7. 拉取项目代码并在目录中打开终端
+
+8. 在相应的项目中配置你的local环境账号名与e-mail
 
 ```bash
 git config --local user.name "xxxx"
