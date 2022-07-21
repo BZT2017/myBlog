@@ -13,6 +13,12 @@ nvm是nodejs的版本管理工具，解决开发人员需要频繁切换node版�
 - nvm uninstall x.x.x 卸载某node版本
 - nvm use x.x.x 切换至已安装的node版本
 
+## 镜像配置
+找到之前安装nvm的文件夹目录，打开settings.txt文件，输入以下配置
+
+node_mirror: https://npm.taobao.org/mirrors/node/
+npm_mirror: https://npm.taobao.org/mirrors/npm/
+
 ## 注意事项
 1. npm命令报警告
 
