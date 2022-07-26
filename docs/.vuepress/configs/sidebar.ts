@@ -10,6 +10,7 @@ export const zh: SidebarConfig = {
         "/life/share/vuePress.md",
         "/life/share/gitMultipleAccounts.md",
         "/life/share/chrome-plugin.md",
+        "/life/share/snippets.md",
       ]
     },
   ],
